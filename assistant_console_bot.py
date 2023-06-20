@@ -21,27 +21,20 @@ class Name(Field):
 
 
 class Phone(Field):
-    def __init__(self):
-        self.numbers = []
-
-    def add_number(self, number):
-        self.numbers.append(number)
-
-    def remove_number(self, number):
-        if number in self.numbers:
-            self.numbers.remove(number)
-
-    def edit_number(self, old_number, new_number):
-        if old_number in self.numbers:
-            index = self.numbers.index(old_number)
-            self.numbers[index] = new_number        
+    
+    def __init__(self, value=None):
+        super().__init__(value)
 
 
 class Record:
-    def __init__(self, name, phone):
+    def __init__(self, name, phones=None):
         self.name = name
-        self.phone = phone
-
+        if phones is None:
+            self.phones = []
+        elif isinstance(phones, Phone):
+            self.phones = [phones]
+        else:
+            self.phones = phones
 
 class AddressBook(UserDict):
 
@@ -139,4 +132,15 @@ def main():
             print("Invalid command!")
 
 if __name__ == "__main__":
-    main()
+    name = Name('Bill')
+    phone = Phone('1234567890')
+    rec = Record(name, phone)
+    ab = AddressBook()
+    ab.add_record(rec)
+    assert isinstance(ab['Bill'], Record)
+    print(ab['Bill'])
+    assert isinstance(ab['Bill'].name, Name)
+    assert isinstance(ab['Bill'].phones, list)
+    assert isinstance(ab['Bill'].phones[0], Phone)
+    assert ab['Bill'].phones[0].value == '1234567890'
+    print('All Ok)')
