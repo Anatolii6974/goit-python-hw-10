@@ -1,15 +1,25 @@
 from collections import UserDict
+from datetime import datetime
 
 
 class Field:
     def __init__(self, value=None):
         self.value = value
 
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        # add your own logic
+        self._value = new_value    
+
     def add_to_record(self, record):
         pass
 
     def remove_from_record(self, record):
-        passgit 
+        pass
 
     def edit_record(self, record, new_value):
         pass
@@ -20,21 +30,57 @@ class Name(Field):
         self.value = value
 
 
-class Phone(Field):
-    
+class Phone(Field):  
     def __init__(self, value=None):
         super().__init__(value)
 
+    @Field.value.setter
+    def value(self, new_value):
+        if not self._is_valid_phone(new_value):
+            raise ValueError("Invalid phone number")
+        self._value = new_value
+
+    def _is_valid_phone(self, phone):
+        return len(phone) == 10 and phone.isdigit()
+
+
+class Birthday(Field): 
+    def __init__(self, value=None):
+        super().__init__(value)    
+
+    @property
+    def value(self):
+        return self._value        
+   
+    @value.setter
+    def value(self, new_value):
+        if isinstance(new_value, datetime):
+            self._gitvalue = new_value
+        else:
+            raise ValueError("Expected datetime object.")
 
 class Record:
-    def __init__(self, name, phones=None):
+    def __init__(self, name, phones=None, birthday=None):
         self.name = name
         if phones is None:
             self.phones = []
         elif isinstance(phones, Phone):
             self.phones = [phones]
+        #else:
+        #   self.phones = phones
+        self.birthday = birthday
+
+    def days_to_birthday(self):
+        if self.birthday:
+            today = datetime.today()
+            next_birthday = datetime(today.year, self.birthday.value.month, self.birthday.value.day)
+            if next_birthday < today:
+                next_birthday = datetime(today.year + 1, self.birthday.value.month, self.birthday.value.day)
+            days = (next_birthday - today).days
+            return days
         else:
-            self.phones = phones
+            return None
+        
 
 class AddressBook(UserDict):
 
@@ -42,10 +88,21 @@ class AddressBook(UserDict):
         self.data[record.name.value] = record
 
     def show_contacts(self):
-        for record_name, record_phone in self.data.items():
+        for record_name, record in self.data.items():
             print(f"Name: {record_name}")
-            for phone in record_phone.phone.numbers:
+            for phone in record.phone.numbers:
                 print(f" -> {phone}")
+
+    def iterator(self, page_size):
+        record_keys = list(self.data.keys())
+        num_records = len(record_keys)
+        current_index = 0
+        while current_index < num_records:
+            page_records = []
+            for i in range(current_index, min(current_index + page_size, num_records)):
+                page_records.append(self.data[record_keys[i]])
+            current_index += page_size
+            yield page_records           
             
 
 
