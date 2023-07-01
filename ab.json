@@ -1,0 +1,72 @@
+{
+    "Samantha Shannon": {
+        "name": "Samantha Shannon",
+        "phones": [
+            "001-800-867-4897x607"
+        ],
+        "birthday": "1970-06-23"
+    },
+    "Kenneth Davis": {
+        "name": "Kenneth Davis",
+        "phones": [
+            "(818)650-3313x757"
+        ],
+        "birthday": "1998-12-30"
+    },
+    "Amanda Weaver": {
+        "name": "Amanda Weaver",
+        "phones": [
+            "001-929-690-8587"
+        ],
+        "birthday": "2023-04-20"
+    },
+    "Ryan Mcdonald": {
+        "name": "Ryan Mcdonald",
+        "phones": [
+            "(438)476-2771x5014"
+        ],
+        "birthday": "2007-10-20"
+    },
+    "Dawn Gentry": {
+        "name": "Dawn Gentry",
+        "phones": [
+            "978.783.5597x31932"
+        ],
+        "birthday": "2013-06-17"
+    },
+    "Richard Shelton": {
+        "name": "Richard Shelton",
+        "phones": [
+            "001-351-335-1037x757"
+        ],
+        "birthday": "2016-08-13"
+    },
+    "Monica Ross": {
+        "name": "Monica Ross",
+        "phones": [
+            "001-855-595-6429x943"
+        ],
+        "birthday": "2007-03-26"
+    },
+    "James Wyatt": {
+        "name": "James Wyatt",
+        "phones": [
+            "721.306.7787x1111"
+        ],
+        "birthday": "2011-03-02"
+    },
+    "Ariel Davis": {
+        "name": "Ariel Davis",
+        "phones": [
+            "+1-679-660-0706"
+        ],
+        "birthday": "2011-04-27"
+    },
+    "Brooke Shaw": {
+        "name": "Brooke Shaw",
+        "phones": [
+            "(671)240-6497"
+        ],
+        "birthday": "1981-12-04"
+    }
+}

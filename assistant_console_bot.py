@@ -1,5 +1,10 @@
 from collections import UserDict
 from datetime import datetime
+from faker import Faker, Factory
+import json
+import re
+
+
 
 
 class Field:
@@ -41,7 +46,7 @@ class Phone(Field):
         self._value = new_value
 
     def _is_valid_phone(self, phone):
-        return len(phone) == 10 and phone.isdigit()
+        return re.match(r'^[().\d+x-]+$', phone)
 
 
 class Birthday(Field): 
@@ -55,7 +60,7 @@ class Birthday(Field):
     @value.setter
     def value(self, new_value):
         if isinstance(new_value, datetime):
-            self._gitvalue = new_value
+            self._value = new_value
         else:
             raise ValueError("Expected datetime object.")
 
@@ -66,9 +71,8 @@ class Record:
             self.phones = []
         elif isinstance(phones, Phone):
             self.phones = [phones]
-        #else:
-        #   self.phones = phones
         self.birthday = birthday
+
 
     def days_to_birthday(self):
         if self.birthday:
@@ -81,11 +85,12 @@ class Record:
         else:
             return None
         
-
+# class AddressBook
 class AddressBook(UserDict):
 
     def add_record(self, record):
         self.data[record.name.value] = record
+        self.save_to_file()
 
     def show_contacts(self):
         for record_name, record in self.data.items():
@@ -103,8 +108,55 @@ class AddressBook(UserDict):
                 page_records.append(self.data[record_keys[i]])
             current_index += page_size
             yield page_records           
-            
+    
+    
+    # Save to JSON
+    def save_to_file(self):
+        with open("ab.json", 'w') as file:
+            json.dump(self.data, file, default=self._serialize_record, indent=4)
 
+    # Load from JSON
+    def load_from_file(self):
+        try:
+            with open("ab.json", 'r') as file:
+                data = json.load(file)
+                for key, value in data.items():
+
+                    name = Name(data[key]['name'])
+                    phone = [Phone(phone) for phone in data[key]['phones']]
+                    birthday = Birthday(datetime.strptime(data[key]['birthday'], "%Y-%m-%d"))
+                    rec = Record(name, phone[0], birthday)
+                    self.data[key] = rec  
+
+        except FileNotFoundError:
+            self.data = {}   
+
+
+    @staticmethod
+    def _serialize_record(record):
+        serialized_phones = [phone.value for phone in record.phones]
+        serialized_birthday = record.birthday.value.strftime('%Y-%m-%d') if record.birthday else None
+        return {
+            'name': record.name.value,
+            'phones': serialized_phones,
+            'birthday': serialized_birthday
+        }
+    
+   
+    # Search name by part of str
+    def search_contacts(self, query):
+        results = []
+        for record in self.data.values():
+            if query.lower() in record.name.value.lower():
+                results.append(record)
+            else:
+                for phone in record.phones:
+                    if query.lower() in phone.value.lower():
+                        results.append(record)
+                        break
+
+        return results
+ 
 
 def input_error(func):
     def inner(*args):
@@ -188,16 +240,43 @@ def main():
         else:
             print("Invalid command!")
 
+fake = Factory.create() 
+ab = AddressBook()
+
 if __name__ == "__main__":
-    name = Name('Bill')
-    phone = Phone('1234567890')
-    rec = Record(name, phone)
-    ab = AddressBook()
-    ab.add_record(rec)
-    assert isinstance(ab['Bill'], Record)
-    print(ab['Bill'])
-    assert isinstance(ab['Bill'].name, Name)
-    assert isinstance(ab['Bill'].phones, list)
-    assert isinstance(ab['Bill'].phones[0], Phone)
-    assert ab['Bill'].phones[0].value == '1234567890'
-    print('All Ok)')
+    
+    # Create test AddressBook
+    for _ in range(10):
+        name = Name(fake.name())
+        phone = Phone(fake.phone_number())
+        birthday = Birthday(datetime.strptime(fake.date(), "%Y-%m-%d"))
+        rec = Record(name, phone, birthday)
+
+        ab.add_record(rec)
+        # Save to ab.json
+        ab.save_to_file()
+
+    # Load from ab.json
+    ab.data = {}
+    print(f'AdressBook is empty {ab.data}')
+    ab.load_from_file()
+   
+    # Test func search_contacts()
+    while True:
+        user_query = input("> ").lower()
+        results = ab.search_contacts(user_query)
+        
+        if results:
+            print("Search Results:")
+            for record in results:
+                print(f"Name: {record.name.value}")
+                print("Phone Numbers:")
+                for phone in record.phones:
+                    print(f" - {phone.value}")
+            break        
+        else:
+            print("No results found.")
+
+
+
+
